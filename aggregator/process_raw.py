@@ -73,6 +73,8 @@ def enrich_csv(csv_data):
         for i, column in enumerate(new_columns):
             csv_data[column] = derived_columns[i]
 
+    csv_data["time"] = pd.to_datetime(csv_data["time"], format="%d/%b/%Y:%H:%M:%S %z")
+
     return csv_data
 
 

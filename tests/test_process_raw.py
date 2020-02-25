@@ -43,7 +43,9 @@ def test_row_series_to_columns():
 
 def test_enrich_csv():
     key = "raw/yellow/deichman-koha/deichman-koha-avdelinger/version%253D1/latest/part.1.parq"
-    data = pd.DataFrame.from_dict({"foo_col": [1], "key": [key], "bar_col": [2]})
+    data = pd.DataFrame.from_dict(
+        {"time": None, "foo_col": [1], "key": [key], "bar_col": [2]}
+    )
     enriched_data = enrich_csv(data)
     row = enriched_data.loc[0]
     assert row.stage == "raw"
@@ -72,6 +74,7 @@ def test_csv_logs_to_parquet():
     assert "tls_version" not in result_data
 
     sample_row = result_data.loc[0]
+    assert sample_row["time"] == pd.Timestamp("2020-02-17T06:31:44", tz="UTC")
     assert sample_row["stage"] == "raw"
     assert sample_row["confidentiality"] == "green"
     assert sample_row["dataset_id"] == "renovasjonsbiler-status"
