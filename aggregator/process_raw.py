@@ -111,6 +111,7 @@ def csv_logs_to_parquet(input_source, output_target):
             out,
             enriched_data,
             has_nulls=has_nulls,
+            times="int96",
             compression="GZIP",
             # We already have an IO-wrapper thanks to Luigi's S3Target. Trick
             # `pq_write` into writing to it instead of a file.
