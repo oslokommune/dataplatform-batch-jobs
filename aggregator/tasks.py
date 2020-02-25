@@ -7,6 +7,8 @@ from luigi.contrib.s3 import S3Target
 from aggregator.process_raw import csv_logs_to_parquet
 from aggregator.s3_logs_to_raw import s3_logs_to_raw
 
+from aggregator.parquet_logs_to_agg import parquet_logs_to_agg
+
 
 def s3_path(prefix, stage, timestamp, filename):
     bucket_name = os.getenv("OUTPUT_BUCKET_NAME")
@@ -60,6 +62,24 @@ class ProcessRaw(luigi.Task):
         return target
 
 
+class Aggregate(luigi.Task):
+    """Task for aggregating the enriched logs"""
+
+    timestamp = luigi.Parameter()
+    prefix = luigi.Parameter()
+
+    def requires(self):
+        return ProcessRaw(timestamp=self.timestamp, prefix=self.prefix)
+
+    def run(self):
+        parquet_logs_to_agg(self.input(), self.output())
+
+    def output(self):
+        path = s3_path(self.prefix, "processed", self.timestamp, "data-agg.parquet")
+        target = S3Target(f"s3://{path}", format=luigi.format.Nop)
+        return target
+
+
 class Run(luigi.Task):
     """Dummy task for kicking off the task chain.
 
@@ -74,7 +94,7 @@ class Run(luigi.Task):
         now = datetime.utcnow()
 
         for dt in [now - timedelta(hours=x) for x in range(1, self.hours + 1)]:
-            yield ProcessRaw(timestamp=dt.strftime("%Y-%m-%d-%H"), prefix=self.prefix)
+            yield Aggregate(timestamp=dt.strftime("%Y-%m-%d-%H"), prefix=self.prefix)
 
 
 if __name__ == "__main__":
