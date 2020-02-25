@@ -68,7 +68,7 @@ class Run(luigi.Task):
     """
 
     hours = luigi.IntParameter()
-    prefix = luigi.Parameter()
+    prefix = luigi.Parameter(default="")
 
     def requires(self):
         now = datetime.utcnow()
