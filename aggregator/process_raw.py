@@ -15,6 +15,51 @@ insignificant_columns = [
     "tls_version",
 ]
 
+# Explicitly specify column types when parsing CSV logs
+column_types = {
+    "time": "object",
+    "remote_ip": "object",
+    "requester": "object",
+    "request_id": "object",
+    "operation": "object",
+    "key": "object",
+    "request_uri": "object",
+    "http_status": "int64",
+    "error_code": "object",
+    "bytes_sent": "float64",
+    "object_size": "float64",
+    "total_time": "float64",
+    "turn_around_time": "float64",
+    "user_agent": "object",
+    "version_id": "object",
+    "host_id": "object",
+    "cipher_suite": "object",
+    "host_header": "object",
+}
+
+# Fields which can contain null values in Parquet file
+nullable_fields = [
+    "requester",
+    "key",
+    "request_uri",
+    "error_code",
+    "bytes_sent",
+    "object_size",
+    "total_time",
+    "turn_around_time",
+    "user_agent",
+    "version_id",
+    "host_id",
+    "cipher_suite",
+    "host_header",
+    "stage",
+    "confidentiality",
+    "dataset_id",
+    "version",
+    "edition_path",
+    "filename",
+]
+
 
 def extract_key_data(key):
     """Return a tuple of interesting fields derived from `key`."""
@@ -79,38 +124,19 @@ def enrich_csv(csv_data):
 
 
 def csv_logs_to_parquet(input_source, output_target):
+
     with output_target.open("w") as out:
         csv_data = pd.read_csv(
-            input_source.open(), usecols=lambda c: c not in insignificant_columns
+            input_source.open(),
+            dtype=column_types,
+            usecols=lambda c: c not in insignificant_columns,
         )
         enriched_data = enrich_csv(csv_data)
-
-        has_nulls = [
-            "requester",
-            "key",
-            "request_uri",
-            "error_code",
-            "bytes_sent",
-            "object_size",
-            "total_time",
-            "turn_around_time",
-            "user_agent",
-            "version_id",
-            "host_id",
-            "cipher_suite",
-            "host_header",
-            "stage",
-            "confidentiality",
-            "dataset_id",
-            "version",
-            "edition_path",
-            "filename",
-        ]
 
         pq_write(
             out,
             enriched_data,
-            has_nulls=has_nulls,
+            has_nulls=nullable_fields,
             times="int96",
             compression="GZIP",
             # We already have an IO-wrapper thanks to Luigi's S3Target. Trick
