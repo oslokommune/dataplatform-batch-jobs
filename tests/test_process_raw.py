@@ -84,3 +84,10 @@ def test_csv_logs_to_parquet():
         sample_row["filename"]
         == "dp.green.renovasjonsbiler-status.raw.1.json-1-2020-02-17-06-24-39-85a538c5-365a-4d73-ae44-0c2496058747"
     )
+
+    assert result_data.dtypes["time"] == "datetime64[ns, UTC]"
+    assert result_data.dtypes["operation"] == "object"
+    assert result_data.dtypes["http_status"] == "int64"
+    assert result_data.dtypes["error_code"] == "object"
+    assert result_data.dtypes["bytes_sent"] == "float64"
+    assert result_data.dtypes["object_size"] == "float64"
