@@ -55,7 +55,7 @@ class ProcessRaw(luigi.Task):
         csv_logs_to_parquet(self.input(), self.output())
 
     def output(self):
-        path = s3_path(self.prefix, "processed", self.timestamp, "data.parquet")
+        path = s3_path(self.prefix, "processed", self.timestamp, "data.parquet.gz")
         target = S3Target(f"s3://{path}", format=luigi.format.Nop)
         return target
 

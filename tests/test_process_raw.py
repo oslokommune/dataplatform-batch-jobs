@@ -43,7 +43,9 @@ def test_row_series_to_columns():
 
 def test_enrich_csv():
     key = "raw/yellow/deichman-koha/deichman-koha-avdelinger/version%253D1/latest/part.1.parq"
-    data = pd.DataFrame.from_dict({"foo_col": [1], "key": [key], "bar_col": [2]})
+    data = pd.DataFrame.from_dict(
+        {"time": None, "foo_col": [1], "key": [key], "bar_col": [2]}
+    )
     enriched_data = enrich_csv(data)
     row = enriched_data.loc[0]
     assert row.stage == "raw"
@@ -72,6 +74,7 @@ def test_csv_logs_to_parquet():
     assert "tls_version" not in result_data
 
     sample_row = result_data.loc[0]
+    assert sample_row["time"] == pd.Timestamp("2020-02-17T06:31:44", tz="UTC")
     assert sample_row["stage"] == "raw"
     assert sample_row["confidentiality"] == "green"
     assert sample_row["dataset_id"] == "renovasjonsbiler-status"
@@ -81,3 +84,10 @@ def test_csv_logs_to_parquet():
         sample_row["filename"]
         == "dp.green.renovasjonsbiler-status.raw.1.json-1-2020-02-17-06-24-39-85a538c5-365a-4d73-ae44-0c2496058747"
     )
+
+    assert result_data.dtypes["time"] == "datetime64[ns, UTC]"
+    assert result_data.dtypes["operation"] == "object"
+    assert result_data.dtypes["http_status"] == "int64"
+    assert result_data.dtypes["error_code"] == "object"
+    assert result_data.dtypes["bytes_sent"] == "float64"
+    assert result_data.dtypes["object_size"] == "float64"
