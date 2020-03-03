@@ -10,7 +10,7 @@ from aggregator.s3_logs_to_raw import s3_logs_to_raw
 from aggregator.parquet_logs_to_agg import parquet_logs_to_agg
 
 
-def s3_path(prefix, stage, timestamp, filename):
+def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
     bucket_name = os.getenv("OUTPUT_BUCKET_NAME")
 
     if bucket_name is None:
@@ -20,7 +20,10 @@ def s3_path(prefix, stage, timestamp, filename):
         bucket_name,
         prefix,
         stage,
-        "red/dp-s3-logs/version=1",
+        confidentiality,
+        "dataplatform",
+        dataset_id,
+        "version=1",
         "year={}/month={}/day={}/hour={}".format(*map(int, timestamp.split("-"))),
         filename,
     )
@@ -39,7 +42,14 @@ class S3LogsToRaw(luigi.Task):
         s3_logs_to_raw(self.timestamp, self.output())
 
     def output(self):
-        path = s3_path(self.output_prefix, "raw", self.timestamp, "data.csv")
+        path = s3_path(
+            self.output_prefix,
+            "raw",
+            "red",
+            "dataplatform-s3-logs",
+            self.timestamp,
+            "data.csv",
+        )
         target = S3Target(f"s3://{path}")
         return target
 
@@ -57,7 +67,14 @@ class ProcessRaw(luigi.Task):
         csv_logs_to_parquet(self.input(), self.output())
 
     def output(self):
-        path = s3_path(self.prefix, "processed", self.timestamp, "data.parquet.gz")
+        path = s3_path(
+            self.prefix,
+            "processed",
+            "red",
+            "dataplatform-s3-logs",
+            self.timestamp,
+            "data.parquet.gz",
+        )
         target = S3Target(f"s3://{path}", format=luigi.format.Nop)
         return target
 
@@ -75,7 +92,14 @@ class Aggregate(luigi.Task):
         parquet_logs_to_agg(self.input(), self.output())
 
     def output(self):
-        path = s3_path(self.prefix, "processed", self.timestamp, "data-agg.parquet")
+        path = s3_path(
+            self.prefix,
+            "processed",
+            "green",
+            "datasett-statistikk-per-time",
+            self.timestamp,
+            "data-agg.parquet.gz",
+        )
         target = S3Target(f"s3://{path}", format=luigi.format.Nop)
         return target
 
