@@ -10,6 +10,17 @@ from aggregator.s3_logs_to_raw import s3_logs_to_raw
 from aggregator.parquet_logs_to_agg import parquet_logs_to_agg
 
 
+def timestamp_path(timestamp):
+    components = list(map(int, timestamp.split("-")))
+
+    if len(components) == 4:
+        path = "year={}/month={}/day={}/hour={}"
+    else:
+        path = "year={}/month={}/day={}"
+
+    return path.format(*components)
+
+
 def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
     bucket_name = os.getenv("OUTPUT_BUCKET_NAME")
 
@@ -24,7 +35,7 @@ def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
         "dataplatform",
         dataset_id,
         "version=1",
-        "year={}/month={}/day={}/hour={}".format(*map(int, timestamp.split("-"))),
+        timestamp_path(timestamp),
         filename,
     )
 
@@ -80,13 +91,14 @@ class ProcessRaw(luigi.Task):
 
 
 class Aggregate(luigi.Task):
-    """Task for aggregating the enriched logs"""
+    """Task for aggregating the enriched logs."""
 
-    timestamp = luigi.Parameter()
+    date = luigi.Parameter()
     prefix = luigi.Parameter()
 
     def requires(self):
-        return ProcessRaw(timestamp=self.timestamp, prefix=self.prefix)
+        for hour in range(0, 24):
+            yield ProcessRaw(timestamp=f"{self.date}-{hour:02d}", prefix=self.prefix)
 
     def run(self):
         parquet_logs_to_agg(self.input(), self.output())
@@ -96,8 +108,8 @@ class Aggregate(luigi.Task):
             self.prefix,
             "processed",
             "green",
-            "datasett-statistikk-per-time",
-            self.timestamp,
+            "datasett-statistikk-per-dag",
+            self.date,
             "data-agg.parquet.gz",
         )
         target = S3Target(f"s3://{path}", format=luigi.format.Nop)
@@ -118,7 +130,7 @@ class Run(luigi.Task):
         now = datetime.utcnow()
 
         for dt in [now - timedelta(hours=x) for x in range(1, self.hours + 1)]:
-            yield Aggregate(timestamp=dt.strftime("%Y-%m-%d-%H"), prefix=self.prefix)
+            yield ProcessRaw(timestamp=dt.strftime("%Y-%m-%d-%H"), prefix=self.prefix)
 
 
 if __name__ == "__main__":

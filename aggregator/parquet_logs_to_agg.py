@@ -1,16 +1,19 @@
-import pandas as pd
-from io import BytesIO
 from fastparquet import write as pq_write
+import pandas as pd
 
 
-def parquet_logs_to_agg(input_source, output_target):
+def read_parquet(input_source):
+    """Return a DataFrame of relevant columns from a Parquet file."""
+    return pd.read_parquet(input_source.path, columns=["operation", "dataset_id"])
+
+
+def parquet_logs_to_agg(input_sources, output_target):
+    dfs = map(read_parquet, input_sources)
+
     with output_target.open("w") as out:
-        parquet_data = pd.read_parquet(BytesIO(input_source.open().read()))
-        df = pd.DataFrame.from_dict(countGetRequests(parquet_data))
         pq_write(
             out,
-            df,
-            times="int96",
+            count_get_requests(pd.concat(dfs)),
             compression="GZIP",
             # We already have an IO-wrapper thanks to Luigi's S3Target. Trick
             # `pq_write` into writing to it instead of a file.
@@ -18,7 +21,7 @@ def parquet_logs_to_agg(input_source, output_target):
         )
 
 
-def countGetRequests(df):
+def count_get_requests(df):
     df = df[df.operation == "REST.GET.OBJECT"][["dataset_id"]]
     df["count"] = 1
     count = (
