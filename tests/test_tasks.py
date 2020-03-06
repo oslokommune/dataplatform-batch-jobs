@@ -6,8 +6,10 @@ from aggregator.tasks import ProcessRaw, S3LogsToRaw, s3_path
 
 def test_s3_path():
     assert (
-        s3_path("test", "raw", "2020-01-01-12", "data.csv")
-        == "test-output-bucket/test/raw/red/dp-s3-logs/version=1/year=2020/month=1/day=1/hour=12/data.csv"
+        s3_path(
+            "test", "raw", "red", "dataplatform-s3-logs", "2020-01-01-12", "data.csv"
+        )
+        == "test-output-bucket/test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=1/day=1/hour=12/data.csv"
     )
 
 
@@ -24,7 +26,7 @@ def test_s3_logs_to_raw():
     S3LogsToRaw("2020-02-13-11", "test").run()
 
     output_objects = s3.Bucket("test-output-bucket").objects.filter(
-        Prefix="test/raw/red/dp-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv"
+        Prefix="test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv"
     )
     assert len(list(output_objects)) == 1
 
@@ -35,12 +37,12 @@ def test_process_raw():
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
         "test-output-bucket",
-        "test/raw/red/dp-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv",
+        "test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv",
     ).put(Body=open("tests/data/raw.csv", "rb"))
 
     ProcessRaw("2020-02-13-11", "test").run()
 
     output_objects = s3.Bucket("test-output-bucket").objects.filter(
-        Prefix="test/processed/red/dp-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.parquet"
+        Prefix="test/processed/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.parquet"
     )
     assert len(list(output_objects)) == 1
