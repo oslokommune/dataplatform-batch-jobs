@@ -40,6 +40,15 @@ def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
     )
 
 
+def past_grace_time(timestamp, min_age):
+    """Check whether `timestamp` is at least `min_age` minutes into the past.
+    """
+    now = datetime.utcnow()
+    ts = datetime.strptime(timestamp, "%Y-%m-%d-%H")
+
+    return now - timedelta(minutes=min_age) > ts
+
+
 class S3LogsToRaw(luigi.Task):
     """Task for converting S3 access logs with with prefix `timestamp` to CSV and
     uploading the result back to S3 at `output_prefix`. The timestamp should be
@@ -48,9 +57,13 @@ class S3LogsToRaw(luigi.Task):
 
     timestamp = luigi.Parameter()
     output_prefix = luigi.Parameter()
+    min_log_age = luigi.IntParameter(default=65)
 
     def run(self):
-        s3_logs_to_raw(self.timestamp, self.output())
+        # Don't handle files that are younger than `min_log_age` minutes (65 by
+        # default), to make sure that S3 is done populating the logs.
+        if past_grace_time(self.timestamp, self.min_log_age):
+            s3_logs_to_raw(self.timestamp, self.output())
 
     def output(self):
         path = s3_path(
