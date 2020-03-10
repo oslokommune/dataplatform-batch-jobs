@@ -13,5 +13,13 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.oslo.kommune.no/origo-dataplatform/s3-log-aggregator",
     packages=["aggregator"],
-    install_requires=["boto3", "fastparquet", "luigi", "s3fs"],
+    install_requires=[
+        "alembic",
+        "boto3",
+        "fastparquet",
+        "luigi",
+        "psycopg2",
+        "s3fs",
+        "sqlalchemy",
+    ],
 )

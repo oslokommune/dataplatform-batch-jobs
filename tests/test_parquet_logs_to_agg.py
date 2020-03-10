@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pandas as pd
 from fastparquet import write as pq_write
 
+from aggregator.models import DatasetRetrievals
 from aggregator.parquet_logs_to_agg import (
     count_get_requests,
     parquet_logs_to_agg,
@@ -28,7 +29,7 @@ def test_read_parquet():
     assert "dataset_id" in df
 
 
-def test_parquet_logs_to_agg():
+def test_parquet_logs_to_agg(test_db_session):
     input_df_1 = pd.read_csv("tests/data/processed-1.csv")
     input_df_2 = pd.read_csv("tests/data/processed-2.csv")
     input_data_1 = BytesIO()
@@ -46,12 +47,27 @@ def test_parquet_logs_to_agg():
     result.close = Mock()
     output_target = Mock(open=Mock(return_value=result))
 
-    parquet_logs_to_agg([input_source_1, input_source_2], output_target)
+    parquet_logs_to_agg([input_source_1, input_source_2], output_target, "2020-03-03")
     df = pd.read_parquet(result)
 
+    assert len(df) == 2
     assert df.loc[df["dataset_id"] == "renovasjonsbiler-status"]["count"].squeeze() == 3
     assert (
         df.loc[df["dataset_id"] == "renovasjonsbiler-status-2"]["count"].squeeze() == 2
+    )
+
+    assert test_db_session.query(DatasetRetrievals).count() == 2
+    assert (
+        test_db_session.query(DatasetRetrievals.count)
+        .filter_by(dataset_id="renovasjonsbiler-status")
+        .scalar()
+        == 3
+    )
+    assert (
+        test_db_session.query(DatasetRetrievals.count)
+        .filter_by(dataset_id="renovasjonsbiler-status-2")
+        .scalar()
+        == 2
     )
 
 

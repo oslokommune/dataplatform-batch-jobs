@@ -31,6 +31,11 @@ Running the code locally depends on a few environment variables:
 ```bash
 export OUTPUT_BUCKET_NAME=ok-origo-dataplatform-dev
 export INPUT_BUCKET_NAME=ok-origo-dataplatform-logs-dev
+export DB_ENGINE=postgresql
+export DB_USER=<local-postgresql-user>
+export DB_PASSWORD=<local-postgresql-password>
+export DB_HOST=localhost
+export DB_NAME=<local-database-name>
 ```
 
 Start the Luigi task runner, adjusting the `hours` and `prefix` parameters as needed:
