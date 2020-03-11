@@ -127,18 +127,18 @@ class Aggregate(luigi.Task):
 class Run(luigi.Task):
     """Dummy task for kicking off the task chain.
 
-    Run jobs for file sets `hours` number of hours back in time, but skip the
-    current hour.
+    Run jobs for file sets `days` number of days back in time, including the
+    current day.
     """
 
-    hours = luigi.IntParameter()
+    days = luigi.IntParameter()
     prefix = luigi.Parameter(default="")
 
     def requires(self):
         now = datetime.utcnow()
 
-        for dt in [now - timedelta(hours=x) for x in range(1, self.hours + 1)]:
-            yield ProcessRaw(timestamp=dt.strftime("%Y-%m-%d-%H"), prefix=self.prefix)
+        for dt in [now - timedelta(days=x) for x in range(self.days)]:
+            yield Aggregate(date=dt.strftime("%Y-%m-%d"), prefix=self.prefix)
 
 
 if __name__ == "__main__":

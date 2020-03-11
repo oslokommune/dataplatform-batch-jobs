@@ -38,10 +38,10 @@ export DB_HOST=localhost
 export DB_NAME=<local-database-name>
 ```
 
-Start the Luigi task runner, adjusting the `hours` and `prefix` parameters as needed:
+Start the Luigi task runner, adjusting the `days` and `prefix` parameters as needed:
 
 ```bash
-python -m luigi --module aggregator.tasks Run --hours 24 --prefix test/my-testing-bucket --local-scheduler
+python -m luigi --module aggregator.tasks Run --days 4 --prefix test/my-testing-bucket --local-scheduler
 ```
 
 ## Deploy
