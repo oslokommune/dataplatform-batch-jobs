@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 import luigi
 from luigi.contrib.s3 import S3Target
 
+from aggregator.parquet_logs_to_agg import parquet_logs_to_agg
 from aggregator.process_raw import csv_logs_to_parquet
 from aggregator.s3_logs_to_raw import s3_logs_to_raw
-
-from aggregator.parquet_logs_to_agg import parquet_logs_to_agg
+from aggregator.util import getenv
 
 
 def timestamp_path(timestamp):
@@ -22,13 +22,8 @@ def timestamp_path(timestamp):
 
 
 def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
-    bucket_name = os.getenv("OUTPUT_BUCKET_NAME")
-
-    if bucket_name is None:
-        raise OSError("Environment variable OUTPUT_BUCKET_NAME is not set")
-
     return os.path.join(
-        bucket_name,
+        getenv("OUTPUT_BUCKET_NAME"),
         prefix,
         stage,
         confidentiality,
@@ -114,7 +109,7 @@ class Aggregate(luigi.Task):
             yield ProcessRaw(timestamp=f"{self.date}-{hour:02d}", prefix=self.prefix)
 
     def run(self):
-        parquet_logs_to_agg(self.input(), self.output())
+        parquet_logs_to_agg(self.input(), self.output(), self.date)
 
     def output(self):
         path = s3_path(

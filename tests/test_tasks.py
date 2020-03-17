@@ -103,7 +103,7 @@ def test_process_raw():
 
 
 @mock_s3
-def test_aggregate():
+def test_aggregate(test_db_session):
     s3 = boto3.resource("s3")
     s3.create_bucket(Bucket="test-output-bucket")
     for hour in range(0, 24):

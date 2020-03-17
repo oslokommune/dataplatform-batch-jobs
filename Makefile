@@ -92,5 +92,21 @@ $(BUILD_VENV)/bin/tox: $(BUILD_VENV)
 	$(BUILD_PY) -m pip install -I virtualenv==16.7.9
 	$(BUILD_PY) -m pip install -U tox
 
+$(BUILD_VENV)/bin/alembic: $(BUILD_VENV)
+	$(BUILD_PY) -m pip install -U alembic psycopg2
+
 $(BUILD_VENV)/bin/%: $(BUILD_VENV)
 	$(BUILD_PY) -m pip install -U $*
+
+
+###
+# Database migrations
+##
+
+.PHONY: generate-migrations
+generate-migrations: $(BUILD_VENV)/bin/alembic
+	PYTHONPATH=. $(BUILD_VENV)/bin/alembic revision --autogenerate
+
+.PHONY: migrate
+migrate: $(BUILD_VENV)/bin/alembic
+	PYTHONPATH=. $(BUILD_VENV)/bin/alembic upgrade head

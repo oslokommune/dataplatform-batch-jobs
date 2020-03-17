@@ -1,8 +1,9 @@
 import csv
-import os
 import re
 
 import boto3
+
+from aggregator.util import getenv
 
 # fmt: off
 # Regex for matching fields of log records in the S3 server access log format
@@ -79,11 +80,7 @@ def _clean_field(field):
 
 
 def s3_logs_to_raw(timestamp, output_target):
-    bucket_name = os.getenv("INPUT_BUCKET_NAME")
-
-    if bucket_name is None:
-        raise OSError("Environment variable INPUT_BUCKET_NAME is not set")
-
+    bucket_name = getenv("INPUT_BUCKET_NAME")
     s3 = boto3.resource("s3")
     prefix = f"logs/s3/ok-origo-dataplatform-dev/{timestamp}"
 
