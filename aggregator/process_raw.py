@@ -24,7 +24,7 @@ column_types = {
     "operation": "object",
     "key": "object",
     "request_uri": "object",
-    "http_status": "int64",
+    "http_status": "float64",
     "error_code": "object",
     "bytes_sent": "float64",
     "object_size": "float64",
