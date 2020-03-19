@@ -67,7 +67,7 @@ def test_csv_logs_to_parquet():
     csv_logs_to_parquet(input_source, output_target)
 
     result_data = pd.read_parquet(result)
-    assert len(result_data) == 3
+    assert len(result_data) == 4
 
     # Verify the absence of some irrelevant columns.
     assert "signature_version" not in result_data
@@ -87,7 +87,7 @@ def test_csv_logs_to_parquet():
 
     assert result_data.dtypes["time"] == "datetime64[ns, UTC]"
     assert result_data.dtypes["operation"] == "object"
-    assert result_data.dtypes["http_status"] == "int64"
+    assert result_data.dtypes["http_status"] == "float64"
     assert result_data.dtypes["error_code"] == "object"
     assert result_data.dtypes["bytes_sent"] == "float64"
     assert result_data.dtypes["object_size"] == "float64"

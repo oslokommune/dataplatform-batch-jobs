@@ -18,7 +18,7 @@ required_fields_pattern = '^' + ' '.join([
     r'(\S+)',                      # Operation
     r'(\S+)',                      # Key
     r'"?(-|[^"]*)"?',              # Request-URI
-    r'(\d{3})',                    # HTTP status
+    r'(\S+)',                      # HTTP status
     r'(\S+)',                      # Error Code
     r'(\S+)',                      # Bytes Sent
     r'(\S+)',                      # Object Size
