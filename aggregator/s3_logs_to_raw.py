@@ -80,15 +80,16 @@ def _clean_field(field):
 
 
 def s3_logs_to_raw(timestamp, output_target):
-    bucket_name = getenv("INPUT_BUCKET_NAME")
+    input_bucket_name = getenv("INPUT_BUCKET_NAME")
+    output_bucket_name = getenv("OUTPUT_BUCKET_NAME")
     s3 = boto3.resource("s3")
-    prefix = f"logs/s3/ok-origo-dataplatform-dev/{timestamp}"
+    prefix = f"logs/s3/{output_bucket_name}/{timestamp}"
 
     with output_target.open("w") as out:
         writer = csv.writer(out, dialect="unix")
         writer.writerow(log_record_fields)
 
-        for obj in s3.Bucket(bucket_name).objects.filter(Prefix=prefix):
+        for obj in s3.Bucket(input_bucket_name).objects.filter(Prefix=prefix):
             body = obj.get()["Body"].read().decode()
 
             for line in body.strip().split("\n"):
