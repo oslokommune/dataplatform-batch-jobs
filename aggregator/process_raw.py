@@ -1,63 +1,48 @@
 import re
+from dataclasses import dataclass
 from urllib.parse import unquote
 
 import pandas as pd
 from fastparquet import write as pq_write
 
-# Columns we don't care about. These are dropped when going from CSV to
-# Parquet.
-insignificant_columns = [
-    "bucket_owner",
-    "bucket",
-    "referer",
-    "signature_version",
-    "authentication_type",
-    "tls_version",
+
+@dataclass
+class Column:
+    name: str
+    dtype: str = "object"
+    null: bool = False
+
+
+# Columns to extract from the incoming CSV file.
+columns = [
+    Column("time"),
+    Column("remote_ip"),
+    Column("requester", null=True),
+    Column("request_id"),
+    Column("operation"),
+    Column("key", null=True),
+    Column("request_uri", null=True),
+    Column("http_status", dtype="float64"),
+    Column("error_code", null=True),
+    Column("bytes_sent", dtype="float64", null=True),
+    Column("object_size", dtype="float64", null=True),
+    Column("total_time", dtype="float64", null=True),
+    Column("turn_around_time", dtype="float64", null=True),
+    Column("user_agent", null=True),
+    Column("version_id", null=True),
+    Column("host_id", null=True),
+    Column("cipher_suite", null=True),
+    Column("host_header", null=True),
 ]
 
-# Explicitly specify column types when parsing CSV logs
-column_types = {
-    "time": "object",
-    "remote_ip": "object",
-    "requester": "object",
-    "request_id": "object",
-    "operation": "object",
-    "key": "object",
-    "request_uri": "object",
-    "http_status": "float64",
-    "error_code": "object",
-    "bytes_sent": "float64",
-    "object_size": "float64",
-    "total_time": "float64",
-    "turn_around_time": "float64",
-    "user_agent": "object",
-    "version_id": "object",
-    "host_id": "object",
-    "cipher_suite": "object",
-    "host_header": "object",
-}
-
-# Fields which can contain null values in Parquet file
-nullable_fields = [
-    "requester",
-    "key",
-    "request_uri",
-    "error_code",
-    "bytes_sent",
-    "object_size",
-    "total_time",
-    "turn_around_time",
-    "user_agent",
-    "version_id",
-    "host_id",
-    "cipher_suite",
-    "host_header",
-    "stage",
-    "confidentiality",
-    "dataset_id",
-    "version",
-    "edition_path",
-    "filename",
+# Additional columns of enriched data to add to the resulting Parquet file.
+derived_columns = [
+    Column("stage", null=True),
+    Column("confidentiality", null=True),
+    Column("dataset_id", null=True),
+    Column("version", null=True),
+    Column("edition_path", null=True),
+    Column("filename", null=True),
 ]
 
 
@@ -104,21 +89,14 @@ def row_series_to_columns(series):
 
 
 def enrich_csv(csv_data):
-    new_columns = [
-        "stage",
-        "confidentiality",
-        "dataset_id",
-        "version",
-        "edition_path",
-        "filename",
-    ]
-    derived_columns = row_series_to_columns(csv_data["key"].map(extract_key_data))
+    derived_data = row_series_to_columns(csv_data["key"].map(extract_key_data))
 
-    if derived_columns:
-        for i, column in enumerate(new_columns):
-            csv_data[column] = derived_columns[i]
+    if derived_data:
+        for i, column in enumerate(derived_columns):
+            csv_data[column.name] = derived_data[i]
 
     csv_data["time"] = pd.to_datetime(csv_data["time"], format="%d/%b/%Y:%H:%M:%S %z")
+    csv_data = csv_data.astype({c.name: c.dtype for c in derived_columns})
 
     return csv_data
 
@@ -128,15 +106,15 @@ def csv_logs_to_parquet(input_source, output_target):
     with output_target.open("w") as out:
         csv_data = pd.read_csv(
             input_source.open(),
-            dtype=column_types,
-            usecols=lambda c: c not in insignificant_columns,
+            dtype={c.name: c.dtype for c in columns},
+            usecols=[c.name for c in columns],
         )
         enriched_data = enrich_csv(csv_data)
 
         pq_write(
             out,
             enriched_data,
-            has_nulls=nullable_fields,
+            has_nulls=[c.name for c in (columns + derived_columns) if c.null],
             times="int96",
             compression="GZIP",
             # We already have an IO-wrapper thanks to Luigi's S3Target. Trick

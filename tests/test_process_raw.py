@@ -91,3 +91,5 @@ def test_csv_logs_to_parquet():
     assert result_data.dtypes["error_code"] == "object"
     assert result_data.dtypes["bytes_sent"] == "float64"
     assert result_data.dtypes["object_size"] == "float64"
+    assert result_data.dtypes["stage"] == "object"
+    assert result_data.dtypes["filename"] == "object"
