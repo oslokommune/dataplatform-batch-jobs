@@ -53,7 +53,7 @@ def test_s3_logs_to_raw():
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
         "test-input-bucket",
-        "logs/s3/ok-origo-dataplatform-dev/2020-02-13-11-43-07-27B0F6A55F241BF8",
+        "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
     ).put(Body=open("tests/data/s3_access_log.txt", "rb"))
 
     luigi.build([S3LogsToRaw("2020-02-13-11", "test")], local_scheduler=True)
@@ -72,7 +72,7 @@ def test_s3_logs_to_raw_in_the_future():
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
         "test-input-bucket",
-        "logs/s3/ok-origo-dataplatform-dev/2020-02-13-11-43-07-27B0F6A55F241BF8",
+        "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
     ).put(Body=open("tests/data/s3_access_log.txt", "rb"))
 
     # Pretend we're in the past relative to the passed timestamp.
