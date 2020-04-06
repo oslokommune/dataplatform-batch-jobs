@@ -91,9 +91,8 @@ def row_series_to_columns(series):
 def enrich_csv(csv_data):
     derived_data = row_series_to_columns(csv_data["key"].map(extract_key_data))
 
-    if derived_data:
-        for i, column in enumerate(derived_columns):
-            csv_data[column.name] = derived_data[i]
+    for i, column in enumerate(derived_columns):
+        csv_data[column.name] = derived_data[i] if derived_data else []
 
     csv_data["time"] = pd.to_datetime(csv_data["time"], format="%d/%b/%Y:%H:%M:%S %z")
     csv_data = csv_data.astype({c.name: c.dtype for c in derived_columns})

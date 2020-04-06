@@ -93,3 +93,21 @@ def test_csv_logs_to_parquet():
     assert result_data.dtypes["object_size"] == "float64"
     assert result_data.dtypes["stage"] == "object"
     assert result_data.dtypes["filename"] == "object"
+
+
+def test_empty_csv_logs_to_parquet():
+    input_source = Mock(open=Mock(return_value=open("tests/data/raw-empty.csv")))
+    result = BytesIO()
+    # Don't permit actually closing the IO stream, since that will discard the
+    # buffer before we get a chance to read it.
+    result.close = Mock()
+    output_target = Mock(open=Mock(return_value=result))
+
+    csv_logs_to_parquet(input_source, output_target)
+
+    result_data = pd.read_parquet(result)
+
+    assert len(result_data) == 0
+    assert result_data.dtypes["operation"] == "object"
+    assert result_data.dtypes["http_status"] == "float64"
+    assert result_data.dtypes["stage"] == "object"
