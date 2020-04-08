@@ -34,6 +34,24 @@ def test_extract_key_data():
     )
 
 
+def test_extract_key_data_filename_with_whitespace():
+    key = "cleaned/green/befolkningsframskrivninger/version=1/edition=20200207T070503/Befolkningsframskrivning(Fram 2019).csv"
+    (
+        stage,
+        confidentiality,
+        dataset_id,
+        version,
+        edition_path,
+        filename,
+    ) = extract_key_data(key)
+    assert stage == "cleaned"
+    assert confidentiality == "green"
+    assert dataset_id == "befolkningsframskrivninger"
+    assert version == "1"
+    assert edition_path == "edition=20200207T070503"
+    assert filename == "Befolkningsframskrivning(Fram 2019).csv"
+
+
 def test_row_series_to_columns():
     assert row_series_to_columns(pd.Series([(1, 4), (2, 5), (3, 6)])) == [
         (1, 2, 3),
