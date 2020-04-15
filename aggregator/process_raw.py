@@ -67,7 +67,7 @@ def extract_key_data(key):
             r"(?P<dataset>\S+)",             # Dataset
             r"version=(?P<version>[^/]+)",   # Version
             r"(?P<edition_path>\S+)",        # Edition path
-            r"(?P<filename>\S+)",            # Filename
+            r"(?P<filename>.+)$",            # Filename
         ]))
         # fmt: on
 
