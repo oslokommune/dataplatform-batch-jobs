@@ -19,3 +19,28 @@ def getenv(name):
         raise OSError(f"Environment variable {name} is not set")
 
     return env
+
+
+def _timestamp_path(timestamp):
+    components = list(map(int, timestamp.split("-")))
+
+    if len(components) == 4:
+        path = "year={}/month={}/day={}/hour={}"
+    else:
+        path = "year={}/month={}/day={}"
+
+    return path.format(*components)
+
+
+def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
+    return os.path.join(
+        getenv("OUTPUT_BUCKET_NAME"),
+        prefix,
+        stage,
+        confidentiality,
+        "dataplatform",
+        dataset_id,
+        "version=1",
+        _timestamp_path(timestamp),
+        filename,
+    )

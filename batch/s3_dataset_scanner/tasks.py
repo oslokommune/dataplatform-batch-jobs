@@ -1,23 +1,10 @@
-import os
-from datetime import datetime
+from datetime import date
 
 import luigi
 from luigi.contrib.s3 import S3Target
 
 from batch.s3_dataset_scanner.scan_s3_objects import scan_s3_objects
-from batch.util import getenv
-
-
-def s3_path(prefix, stage, edition):
-    return os.path.join(
-        getenv("OUTPUT_BUCKET_NAME"),
-        prefix,
-        stage,
-        "red/dataplatform/dataplatform-s3-datasets",
-        getenv("INPUT_BUCKET_NAME"),
-        "version=1",
-        f"edition={edition}/data.parquet.gz",
-    )
+from batch.util import getenv, s3_path
 
 
 class ScanS3Objects(luigi.Task):
@@ -25,14 +12,21 @@ class ScanS3Objects(luigi.Task):
     outputting their metadata in a raw dataset.
     """
 
-    timestamp = luigi.Parameter()
     prefix = luigi.Parameter()
 
     def run(self):
         scan_s3_objects(self.output())
 
     def output(self):
-        path = s3_path(self.prefix, "raw", self.timestamp)
+        input_bucket_name = getenv("INPUT_BUCKET_NAME")
+        path = s3_path(
+            self.prefix,
+            "raw",
+            "red",
+            f"dataplatform-s3-datasets/{input_bucket_name}",
+            date.today().isoformat(),
+            "data.parquet.gz",
+        )
         return S3Target(f"s3://{path}", format=luigi.format.Nop)
 
 
@@ -41,13 +35,8 @@ class Run(luigi.Task):
 
     prefix = luigi.Parameter(default="")
 
-    def __init__(self, *args, **kwargs):
-        now = datetime.utcnow()
-        self.timestamp = now.strftime("%Y%m%dT%H%M%S")
-        super().__init__(*args, **kwargs)
-
     def requires(self):
-        return ScanS3Objects(timestamp=self.timestamp, prefix=self.prefix)
+        return ScanS3Objects(prefix=self.prefix)
 
 
 if __name__ == "__main__":
