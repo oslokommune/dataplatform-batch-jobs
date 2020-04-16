@@ -18,11 +18,13 @@ class DatasetRetrievals(Base):
     __table_args__ = (UniqueConstraint("dataset_id", "date"),)
 
 
-class DatasetCount(Base):
-    """Stores the number of unique datasets present on a given date."""
+class DatasetOnDate(Base):
+    """Stores the datasets present on a given date."""
 
-    __tablename__ = "dataset_count"
+    __tablename__ = "dataset_on_date"
 
     id = Column(Integer, primary_key=True)
-    date = Column(Date, unique=True)
-    count = Column(Integer)
+    dataset_id = Column(String)
+    date = Column(Date)
+
+    __table_args__ = (UniqueConstraint("dataset_id", "date"),)
