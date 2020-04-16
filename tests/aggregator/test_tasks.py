@@ -5,8 +5,8 @@ import boto3
 import luigi
 from moto import mock_s3
 
-import aggregator.tasks
-from aggregator.tasks import (
+import batch.aggregator.tasks
+from batch.aggregator.tasks import (
     Aggregate,
     ProcessRaw,
     S3LogsToRaw,
@@ -34,9 +34,11 @@ def test_s3_path():
     )
 
 
-@patch.object(aggregator.tasks, "datetime", Mock(wraps=datetime.datetime))
+@patch.object(batch.aggregator.tasks, "datetime", Mock(wraps=datetime.datetime))
 def test_past_grace_time():
-    aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(2020, 3, 1, 8)
+    batch.aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(
+        2020, 3, 1, 8
+    )
 
     assert not past_grace_time("2020-03-01-8", 5)
     assert not past_grace_time("2020-03-01-7", 65)
@@ -54,7 +56,7 @@ def test_s3_logs_to_raw():
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
-    ).put(Body=open("tests/data/s3_access_log.txt", "rb"))
+    ).put(Body=open("tests/aggregator/data/s3_access_log.txt", "rb"))
 
     luigi.build([S3LogsToRaw("2020-02-13-11", "test")], local_scheduler=True)
 
@@ -65,7 +67,7 @@ def test_s3_logs_to_raw():
 
 
 @mock_s3
-@patch.object(aggregator.tasks, "datetime", Mock(wraps=datetime.datetime))
+@patch.object(batch.aggregator.tasks, "datetime", Mock(wraps=datetime.datetime))
 def test_s3_logs_to_raw_in_the_future():
     s3 = boto3.resource("s3")
     s3.create_bucket(Bucket="test-input-bucket")
@@ -73,10 +75,12 @@ def test_s3_logs_to_raw_in_the_future():
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
-    ).put(Body=open("tests/data/s3_access_log.txt", "rb"))
+    ).put(Body=open("tests/aggregator/data/s3_access_log.txt", "rb"))
 
     # Pretend we're in the past relative to the passed timestamp.
-    aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(2020, 2, 13, 10)
+    batch.aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(
+        2020, 2, 13, 10
+    )
     luigi.build([S3LogsToRaw("2020-02-13-11", "test")], local_scheduler=True)
 
     output_objects = s3.Bucket("test-output-bucket").objects.filter(
@@ -92,7 +96,7 @@ def test_process_raw():
     s3.Object(
         "test-output-bucket",
         "test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv",
-    ).put(Body=open("tests/data/raw.csv", "rb"))
+    ).put(Body=open("tests/aggregator/data/raw.csv", "rb"))
 
     ProcessRaw("2020-02-13-11", "test").run()
 
@@ -110,7 +114,7 @@ def test_aggregate(test_db_session):
         s3.Object(
             "test-output-bucket",
             f"test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour={hour}/data.csv",
-        ).put(Body=open("tests/data/raw.csv", "rb"))
+        ).put(Body=open("tests/aggregator/data/raw.csv", "rb"))
 
     luigi.build([Aggregate("2020-02-13", "test")], local_scheduler=True)
 

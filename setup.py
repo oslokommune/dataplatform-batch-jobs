@@ -4,15 +4,15 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="s3-log-aggregator",
+    name="dataplatform-batch-jobs",
     version="0.0.1",
     author="Origo Dataplattform",
     author_email="dataplattform@oslo.kommune.no",
-    description="Batch job for aggregating S3 access logs into datasets",
+    description="Collection of batch jobs for the dataplatform",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.oslo.kommune.no/origo-dataplatform/s3-log-aggregator",
-    packages=["aggregator"],
+    url="https://github.oslo.kommune.no/origo-dataplatform/dataplatform-batch-jobs",
+    packages=["batch"],
     install_requires=[
         "alembic",
         "boto3",

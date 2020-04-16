@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 
-from aggregator.process_raw import (
+from batch.aggregator.process_raw import (
     csv_logs_to_parquet,
     enrich_csv,
     extract_key_data,
@@ -75,7 +75,7 @@ def test_enrich_csv():
 
 
 def test_csv_logs_to_parquet():
-    input_source = Mock(open=Mock(return_value=open("tests/data/raw.csv")))
+    input_source = Mock(open=Mock(return_value=open("tests/aggregator/data/raw.csv")))
     result = BytesIO()
     # Don't permit actually closing the IO stream, since that will discard the
     # buffer before we get a chance to read it.
@@ -114,7 +114,9 @@ def test_csv_logs_to_parquet():
 
 
 def test_empty_csv_logs_to_parquet():
-    input_source = Mock(open=Mock(return_value=open("tests/data/raw-empty.csv")))
+    input_source = Mock(
+        open=Mock(return_value=open("tests/aggregator/data/raw-empty.csv"))
+    )
     result = BytesIO()
     # Don't permit actually closing the IO stream, since that will discard the
     # buffer before we get a chance to read it.

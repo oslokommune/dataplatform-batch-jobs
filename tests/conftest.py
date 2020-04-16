@@ -1,7 +1,7 @@
 import pytest
 
-from aggregator.models import Base
-from aggregator.db import db_session, engine
+from batch.db import db_session, engine
+from batch.models import Base
 
 
 @pytest.fixture(scope="function")

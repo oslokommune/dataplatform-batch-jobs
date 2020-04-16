@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import boto3
 from moto import mock_s3
 
-from aggregator.s3_logs_to_raw import _clean_field, s3_logs_to_raw
+from batch.aggregator.s3_logs_to_raw import _clean_field, s3_logs_to_raw
 
 
 def test_clean_field():
@@ -28,9 +28,9 @@ def test_s3_logs_to_raw():
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
-    ).put(Body=open("tests/data/s3_access_log.txt", "rb"))
+    ).put(Body=open("tests/aggregator/data/s3_access_log.txt", "rb"))
 
     s3_logs_to_raw("2020-02-13-11", output_target)
 
-    with open("tests/data/raw.csv", "r") as expected_result:
+    with open("tests/aggregator/data/raw.csv", "r") as expected_result:
         assert result.getvalue() == expected_result.read()

@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from aggregator.util import getenv
+from batch.util import getenv
 
 _ENGINE = None
 

@@ -3,8 +3,8 @@ import datetime
 import pandas as pd
 from fastparquet import write as pq_write
 
-from aggregator.db import db_session, update_or_create
-from aggregator.models import DatasetRetrievals
+from batch.db import db_session, update_or_create
+from batch.models import DatasetRetrievals
 
 
 def read_parquet(input_source):
