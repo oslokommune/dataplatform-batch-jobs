@@ -2,7 +2,8 @@ import boto3
 import pandas as pd
 from fastparquet import write as pq_write
 
-from batch.util import Column, getenv
+from batch.data_util import Column
+from batch.util import getenv
 
 columns = [
     Column("key"),

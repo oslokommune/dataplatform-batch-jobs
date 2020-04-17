@@ -1,10 +1,9 @@
-import re
-from urllib.parse import unquote
+from dataclasses import astuple
 
 import pandas as pd
 from fastparquet import write as pq_write
 
-from batch.util import Column
+from batch.data_util import Column, extract_key_data
 
 # Columns to extract from the incoming CSV file.
 columns = [
@@ -39,50 +38,23 @@ derived_columns = [
 ]
 
 
-def extract_key_data(key):
-    """Return a tuple of interesting fields derived from `key`."""
-    stage = None
-    confidentiality = None
-    dataset_id = None
-    version = None
-    edition_path = None
-    filename = None
-
-    if isinstance(key, str):
-        # Amazon URL-encodes the key twice for unknown reasons, so decode it
-        # twice.
-        key_unquoted = unquote(unquote(key))
-
-        # fmt: off
-        pattern = re.compile("/".join([
-            r"(?P<stage>[^/]+)",             # Stage
-            r"(?P<confidentiality>[^/]+)",   # Confidentiality
-            r"(?P<dataset>\S+)",             # Dataset
-            r"version=(?P<version>[^/]+)",   # Version
-            r"(?P<edition_path>\S+)",        # Edition path
-            r"(?P<filename>.+)$",            # Filename
-        ]))
-        # fmt: on
-
-        match = pattern.search(key_unquoted)
-        if match:
-            stage = match.group("stage")
-            confidentiality = match.group("confidentiality")
-            dataset_id = match.group("dataset").split("/")[-1]
-            version = match.group("version")
-            edition_path = match.group("edition_path")
-            filename = match.group("filename")
-
-    return stage, confidentiality, dataset_id, version, edition_path, filename
-
-
 def row_series_to_columns(series):
     """Turn a pandas series of row tuples into a list of column value tuples."""
     return list(zip(*series))
 
 
+def extract_key_data_to_tuple(key):
+    """Extract key data from `key` as a 6-tuple."""
+    key_data = extract_key_data(key)
+
+    if key_data:
+        return astuple(key_data)
+
+    return (None,) * len(derived_columns)
+
+
 def enrich_csv(csv_data):
-    derived_data = row_series_to_columns(csv_data["key"].map(extract_key_data))
+    derived_data = row_series_to_columns(csv_data["key"].map(extract_key_data_to_tuple))
 
     for i, column in enumerate(derived_columns):
         csv_data[column.name] = derived_data[i] if derived_data else []
