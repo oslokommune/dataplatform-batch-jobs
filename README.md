@@ -28,7 +28,11 @@ For tests and linting we use [pytest](https://pypi.org/project/pytest/), [flake8
 
 ### S3 access log aggregator
 
-Batch job that aggregates [S3 access logs](https://docs.aws.amazon.com/AmazonS3/latest/dev/LogFormat.html) into a dataset.
+Batch job that aggregates [S3 access
+logs](https://docs.aws.amazon.com/AmazonS3/latest/dev/LogFormat.html) into a
+dataset.
+
+![S3 access log aggregator task flow](doc/s3_access_log_aggregator.png)
 
 #### Running locally
 
@@ -52,7 +56,10 @@ python -m luigi --module batch.s3_access_log_aggregator.tasks Run --days 4 --pre
 
 ### S3 dataset scanner
 
-Batch job for producing a dataset of the dataset IDs present in the dataplatform on a given date.
+Batch job for producing a dataset of the dataset IDs present in the dataplatform
+on a given date.
+
+![S3 dataset scanner task flow](doc/s3_dataset_scanner.png)
 
 #### Running locally
 

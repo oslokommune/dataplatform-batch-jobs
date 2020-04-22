@@ -1,0 +1,75 @@
+digraph G {
+  node [ fontname = "Cantarell" ];
+  edge [ fontname = "Cantarell"; fontsize = 11 ];
+
+  S3LogsToRaw [
+    label = "S3LogsToRaw";
+    style = bold;
+    shape = rect;
+  ];
+  S3LogsToRaw_in [
+    label = "Raw S3 logs";
+    shape = note;
+  ];
+  S3LogsToRaw_out [
+    label = "S3Target(data.csv)";
+    shape = note;
+  ];
+
+  ProcessRaw [
+    label = "ProcessRaw";
+    style = bold;
+    shape = rect;
+  ];
+  ProcessRaw_out [
+    label = "S3Target(data.parquet)";
+    shape = note;
+  ];
+
+  Aggregate [
+    label = "Aggregate";
+    style = bold;
+    shape = rect;
+  ];
+  Aggregate_out_1 [
+    label = "S3Target(data-agg.parquet)";
+    shape = note;
+  ];
+  Aggregate_out_2 [
+    label = "DB";
+    shape = cylinder;
+  ];
+
+  Run [
+    label = "Run";
+    style = bold;
+    shape = rect;
+  ];
+
+  S3LogsToRaw_in -> S3LogsToRaw [ style=dotted ];
+  S3LogsToRaw -> S3LogsToRaw_out [ label = "output()" ];
+
+  S3LogsToRaw -> ProcessRaw [ label = "requires()" ];
+  S3LogsToRaw_out -> ProcessRaw [ label = "input()" ];
+  ProcessRaw -> ProcessRaw_out [ label = "output()" ];
+
+  ProcessRaw -> Aggregate [ label = "requires() × 24" ];
+  ProcessRaw_out -> Aggregate [ label = "input()" ];
+  Aggregate -> Aggregate_out_1 [ label = "output()" ];
+  Aggregate -> Aggregate_out_2 [ style=dotted ];
+
+  Aggregate -> Run [ label = "requires() × <days>"];
+
+  {
+    rank=min;
+    Aggregate_out_2;
+  }
+  {
+    rank=same;
+    S3LogsToRaw; ProcessRaw; Aggregate; Run;
+  }
+  {
+    rank=same;
+    S3LogsToRaw_in; S3LogsToRaw_out; ProcessRaw_out; Aggregate_out_1;
+  }
+}
