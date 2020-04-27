@@ -4,8 +4,8 @@ from datetime import datetime
 import luigi
 from luigi.contrib.s3 import S3Target
 
+from batch.s3_dataset_scanner.scan_s3_objects import scan_s3_objects
 from batch.util import getenv
-from batch.scanner.scan_s3_objects import scan_s3_objects
 
 
 def s3_path(prefix, stage, edition):

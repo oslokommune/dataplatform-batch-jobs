@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 import luigi
 from luigi.contrib.s3 import S3Target
 
-from batch.aggregator.parquet_logs_to_agg import parquet_logs_to_agg
-from batch.aggregator.process_raw import csv_logs_to_parquet
-from batch.aggregator.s3_logs_to_raw import s3_logs_to_raw
+from batch.s3_access_log_aggregator.parquet_logs_to_agg import parquet_logs_to_agg
+from batch.s3_access_log_aggregator.process_raw import csv_logs_to_parquet
+from batch.s3_access_log_aggregator.s3_logs_to_raw import s3_logs_to_raw
 from batch.util import getenv
 
 

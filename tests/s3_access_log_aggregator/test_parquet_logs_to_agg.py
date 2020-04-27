@@ -4,16 +4,16 @@ from unittest.mock import Mock
 import pandas as pd
 from fastparquet import write as pq_write
 
-from batch.aggregator.parquet_logs_to_agg import (
+from batch.models import DatasetRetrievals
+from batch.s3_access_log_aggregator.parquet_logs_to_agg import (
     count_get_requests,
     parquet_logs_to_agg,
     read_parquet,
 )
-from batch.models import DatasetRetrievals
 
 
 def test_read_parquet():
-    input_df = pd.read_csv("tests/aggregator/data/processed-1.csv")
+    input_df = pd.read_csv("tests/s3_access_log_aggregator/data/processed-1.csv")
     input_data = BytesIO()
     # Don't permit actually closing the IO stream, since that will discard the
     # buffer before we get a chance to read it.
@@ -30,8 +30,8 @@ def test_read_parquet():
 
 
 def test_parquet_logs_to_agg(test_db_session):
-    input_df_1 = pd.read_csv("tests/aggregator/data/processed-1.csv")
-    input_df_2 = pd.read_csv("tests/aggregator/data/processed-2.csv")
+    input_df_1 = pd.read_csv("tests/s3_access_log_aggregator/data/processed-1.csv")
+    input_df_2 = pd.read_csv("tests/s3_access_log_aggregator/data/processed-2.csv")
     input_data_1 = BytesIO()
     input_data_2 = BytesIO()
     input_data_1.close = Mock()

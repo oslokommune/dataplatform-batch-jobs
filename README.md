@@ -26,7 +26,7 @@ For tests and linting we use [pytest](https://pypi.org/project/pytest/), [flake8
 
 ## Batch jobs
 
-### S3 log aggregator
+### S3 access log aggregator
 
 Batch job that aggregates [S3 access logs](https://docs.aws.amazon.com/AmazonS3/latest/dev/LogFormat.html) into a dataset.
 
@@ -47,7 +47,7 @@ export DB_NAME=<local-database-name>
 Start the Luigi task runner, adjusting the `days` and `prefix` parameters as needed:
 
 ```bash
-python -m luigi --module batch.aggregator.tasks Run --days 4 --prefix test/my-testing-bucket --local-scheduler
+python -m luigi --module batch.s3_access_log_aggregator.tasks Run --days 4 --prefix test/my-testing-bucket --local-scheduler
 ```
 
 ### S3 dataset scanner
@@ -66,7 +66,7 @@ export OUTPUT_BUCKET_NAME=ok-origo-dataplatform-dev
 Start the Luigi task runner, adjusting `prefix` as needed:
 
 ```bash
-python -m luigi --module batch.scanner.tasks Run --prefix test/my-testing-bucket --local-scheduler
+python -m luigi --module batch.s3_dataset_scanner.tasks Run --prefix test/my-testing-bucket --local-scheduler
 ```
 
 ## Deploy
