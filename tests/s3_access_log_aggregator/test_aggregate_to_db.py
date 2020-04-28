@@ -5,9 +5,9 @@ import pandas as pd
 from fastparquet import write as pq_write
 
 from batch.models import DatasetRetrievals
-from batch.s3_access_log_aggregator.parquet_logs_to_agg import (
+from batch.s3_access_log_aggregator.aggregate_to_db import (
     count_get_requests,
-    parquet_logs_to_agg,
+    aggregate_to_db,
     read_parquet,
 )
 
@@ -29,7 +29,7 @@ def test_read_parquet():
     assert "dataset_id" in df
 
 
-def test_parquet_logs_to_agg(test_db_session):
+def test_aggregate_to_db(test_db_session):
     input_df_1 = pd.read_csv("tests/s3_access_log_aggregator/data/processed-1.csv")
     input_df_2 = pd.read_csv("tests/s3_access_log_aggregator/data/processed-2.csv")
     input_data_1 = BytesIO()
@@ -47,7 +47,7 @@ def test_parquet_logs_to_agg(test_db_session):
     result.close = Mock()
     output_target = Mock(open=Mock(return_value=result))
 
-    parquet_logs_to_agg([input_source_1, input_source_2], output_target, "2020-03-03")
+    aggregate_to_db([input_source_1, input_source_2], output_target, "2020-03-03")
     df = pd.read_parquet(result)
 
     assert len(df) == 2

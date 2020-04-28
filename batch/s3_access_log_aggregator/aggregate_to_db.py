@@ -14,7 +14,7 @@ def read_parquet(input_source):
     )
 
 
-def parquet_logs_to_agg(input_sources, output_target, timestamp):
+def aggregate_to_db(input_sources, output_target, timestamp):
     dfs = map(read_parquet, input_sources)
     counts = count_get_requests(pd.concat(dfs))
     date = datetime.date.fromisoformat(timestamp)

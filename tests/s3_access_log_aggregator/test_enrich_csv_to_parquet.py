@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 
-from batch.s3_access_log_aggregator.process_raw import (
+from batch.s3_access_log_aggregator.enrich_csv_to_parquet import (
     csv_logs_to_parquet,
     enrich_csv,
     extract_key_data_to_tuple,

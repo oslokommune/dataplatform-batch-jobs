@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import boto3
 from moto import mock_s3
 
-from batch.s3_access_log_aggregator.s3_logs_to_raw import _clean_field, s3_logs_to_raw
+from batch.s3_access_log_aggregator.s3_logs_to_csv import _clean_field, s3_logs_to_csv
 
 
 def test_clean_field():
@@ -16,7 +16,7 @@ def test_clean_field():
 
 
 @mock_s3
-def test_s3_logs_to_raw():
+def test_s3_logs_to_csv():
     result = StringIO()
     # Don't permit actually closing the IO stream, since that will discard the
     # buffer before we get a chance to read it.
@@ -30,7 +30,7 @@ def test_s3_logs_to_raw():
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
     ).put(Body=open("tests/s3_access_log_aggregator/data/s3_access_log.txt", "rb"))
 
-    s3_logs_to_raw("2020-02-13-11", output_target)
+    s3_logs_to_csv("2020-02-13-11", output_target)
 
     with open("tests/s3_access_log_aggregator/data/raw.csv", "r") as expected_result:
         assert result.getvalue() == expected_result.read()

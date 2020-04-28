@@ -79,7 +79,7 @@ def _clean_field(field):
     return field
 
 
-def s3_logs_to_raw(timestamp, output_target):
+def s3_logs_to_csv(timestamp, output_target):
     input_bucket_name = getenv("INPUT_BUCKET_NAME")
     output_bucket_name = getenv("OUTPUT_BUCKET_NAME")
     s3 = boto3.resource("s3")
