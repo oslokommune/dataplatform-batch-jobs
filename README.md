@@ -61,13 +61,31 @@ Running the code locally depends on a few environment variables:
 ```bash
 export INPUT_BUCKET_NAME=ok-origo-dataplatform-dev
 export OUTPUT_BUCKET_NAME=ok-origo-dataplatform-dev
+export DB_ENGINE=postgresql
+export DB_USER=<local-postgresql-user>
+export DB_PASSWORD=<local-postgresql-password>
+export DB_HOST=localhost
+export DB_NAME=<local-database-name>
 ```
 
-Start the Luigi task runner, adjusting `prefix` as needed:
+To produce a raw snapshot of the objects currently present in S3, start the
+Luigi task runner like this, adjusting `prefix` as needed:
 
 ```bash
-python -m luigi --module batch.s3_dataset_scanner.tasks Run --prefix test/my-testing-bucket --local-scheduler
+python -m luigi --module batch.s3_dataset_scanner.tasks ScanS3Objects --prefix test/my-testing-bucket --local-scheduler
 ```
+
+To process such raw datasets from a given date, extracing the list of dataset
+IDs from them into a database, start the Luigi task runner like this, adjusting
+`prefix` as needed:
+
+```bash
+python -m luigi --module batch.s3_dataset_scanner.tasks ExtractDatasetsFromS3Metadata --prefix test/my-testing-bucket --date 2020-04-17 --local-scheduler
+```
+
+This task can also be backfilled conventiently by passing a [date
+interval](https://luigi.readthedocs.io/en/stable/api/luigi.date_interval.htmlback)
+for the `date` parameter.
 
 ## Deploy
 

@@ -6,12 +6,12 @@ import pandas as pd
 from batch.s3_access_log_aggregator.process_raw import (
     csv_logs_to_parquet,
     enrich_csv,
-    extract_key_data,
+    extract_key_data_to_tuple,
     row_series_to_columns,
 )
 
 
-def test_extract_key_data():
+def test_extract_key_data_to_tuple():
     (
         stage,
         confidentiality,
@@ -19,7 +19,7 @@ def test_extract_key_data():
         version,
         edition_path,
         filename,
-    ) = extract_key_data(
+    ) = extract_key_data_to_tuple(
         "raw/green/renovasjonsbiler-status/version%253D1/year%253D2020/month%253D2/day%253D17/"
         "dp.green.renovasjonsbiler-status.raw.1.json-1-2020-02-17-06-24-39-85a538c5-365a-4d73-ae44-0c2496058747"
     )
@@ -34,22 +34,8 @@ def test_extract_key_data():
     )
 
 
-def test_extract_key_data_filename_with_whitespace():
-    key = "cleaned/green/befolkningsframskrivninger/version=1/edition=20200207T070503/Befolkningsframskrivning(Fram 2019).csv"
-    (
-        stage,
-        confidentiality,
-        dataset_id,
-        version,
-        edition_path,
-        filename,
-    ) = extract_key_data(key)
-    assert stage == "cleaned"
-    assert confidentiality == "green"
-    assert dataset_id == "befolkningsframskrivninger"
-    assert version == "1"
-    assert edition_path == "edition=20200207T070503"
-    assert filename == "Befolkningsframskrivning(Fram 2019).csv"
+def test_extract_key_data_to_tuple_invalid():
+    assert extract_key_data_to_tuple("foo/bar") == (None, None, None, None, None, None)
 
 
 def test_row_series_to_columns():
