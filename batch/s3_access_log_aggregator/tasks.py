@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import luigi
@@ -7,32 +6,7 @@ from luigi.contrib.s3 import S3Target
 from batch.s3_access_log_aggregator.parquet_logs_to_agg import parquet_logs_to_agg
 from batch.s3_access_log_aggregator.process_raw import csv_logs_to_parquet
 from batch.s3_access_log_aggregator.s3_logs_to_raw import s3_logs_to_raw
-from batch.util import getenv
-
-
-def timestamp_path(timestamp):
-    components = list(map(int, timestamp.split("-")))
-
-    if len(components) == 4:
-        path = "year={}/month={}/day={}/hour={}"
-    else:
-        path = "year={}/month={}/day={}"
-
-    return path.format(*components)
-
-
-def s3_path(prefix, stage, confidentiality, dataset_id, timestamp, filename):
-    return os.path.join(
-        getenv("OUTPUT_BUCKET_NAME"),
-        prefix,
-        stage,
-        confidentiality,
-        "dataplatform",
-        dataset_id,
-        "version=1",
-        timestamp_path(timestamp),
-        filename,
-    )
+from batch.util import s3_path
 
 
 def past_grace_time(timestamp, min_age):
