@@ -3,7 +3,7 @@ import re
 
 import boto3
 
-from aggregator.util import getenv
+from batch.util import getenv
 
 # fmt: off
 # Regex for matching fields of log records in the S3 server access log format

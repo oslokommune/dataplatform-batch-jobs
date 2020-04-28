@@ -1,17 +1,10 @@
 import re
-from dataclasses import dataclass
 from urllib.parse import unquote
 
 import pandas as pd
 from fastparquet import write as pq_write
 
-
-@dataclass
-class Column:
-    name: str
-    dtype: str = "object"
-    null: bool = False
-
+from batch.util import Column
 
 # Columns to extract from the incoming CSV file.
 columns = [

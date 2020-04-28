@@ -2,8 +2,8 @@ from logging.config import fileConfig
 
 from alembic import context
 
-from aggregator import models
-from aggregator.db import engine, get_url
+from batch import models
+from batch.db import engine, get_url
 
 # This is the Alembic Config object, which provides access to the values within
 # the .ini file in use.
