@@ -1,4 +1,3 @@
-from io import BytesIO
 from unittest.mock import Mock
 
 import pandas as pd
@@ -9,6 +8,7 @@ from batch.s3_access_log_aggregator.enrich_csv_to_parquet import (
     extract_key_data_to_tuple,
     row_series_to_columns,
 )
+from tests.util import mock_byte_output_target
 
 
 def test_extract_key_data_to_tuple():
@@ -64,11 +64,7 @@ def test_csv_logs_to_parquet():
     input_source = Mock(
         open=Mock(return_value=open("tests/s3_access_log_aggregator/data/raw.csv"))
     )
-    result = BytesIO()
-    # Don't permit actually closing the IO stream, since that will discard the
-    # buffer before we get a chance to read it.
-    result.close = Mock()
-    output_target = Mock(open=Mock(return_value=result))
+    result, output_target = mock_byte_output_target()
 
     csv_logs_to_parquet(input_source, output_target)
 
@@ -107,11 +103,7 @@ def test_empty_csv_logs_to_parquet():
             return_value=open("tests/s3_access_log_aggregator/data/raw-empty.csv")
         )
     )
-    result = BytesIO()
-    # Don't permit actually closing the IO stream, since that will discard the
-    # buffer before we get a chance to read it.
-    result.close = Mock()
-    output_target = Mock(open=Mock(return_value=result))
+    result, output_target = mock_byte_output_target()
 
     csv_logs_to_parquet(input_source, output_target)
 

@@ -1,12 +1,11 @@
 from datetime import date
-from io import BytesIO
-from unittest.mock import Mock
 
 import boto3
 import pandas as pd
 from moto import mock_s3
 
 from batch.s3_dataset_scanner.scan_s3_objects import scan_s3_objects
+from tests.util import mock_byte_output_target
 
 keys = {
     "raw/green/boligpriser-blokkleiligheter/version=1/edition=20200323t190239/boligpriser(2004-2018-v04).xlsx",
@@ -24,11 +23,7 @@ def test_scan_s3_objects():
     for key in keys:
         s3.Object("test-input-bucket", key).put(Body=object_body)
 
-    result = BytesIO()
-    # Don't permit actually closing the IO stream, since that will discard the
-    # buffer before we get a chance to read it.
-    result.close = Mock()
-    output_target = Mock(open=Mock(return_value=result))
+    result, output_target = mock_byte_output_target()
 
     scan_s3_objects(output_target)
 
