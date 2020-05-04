@@ -2,40 +2,40 @@ digraph G {
   node [ fontname = "Cantarell" ];
   edge [ fontname = "Cantarell"; fontsize = 11 ];
 
-  S3LogsToRaw [
-    label = "S3LogsToRaw";
+  S3LogsToCSV [
+    label = "S3LogsToCSV";
     style = bold;
     shape = rect;
   ];
-  S3LogsToRaw_in [
+  S3LogsToCSV_in [
     label = "Raw S3 logs";
     shape = note;
   ];
-  S3LogsToRaw_out [
+  S3LogsToCSV_out [
     label = "S3Target(data.csv)";
     shape = note;
   ];
 
-  ProcessRaw [
-    label = "ProcessRaw";
+  EnrichCSVToParquet [
+    label = "EnrichCSVToParquet";
     style = bold;
     shape = rect;
   ];
-  ProcessRaw_out [
+  EnrichCSVToParquet_out [
     label = "S3Target(data.parquet)";
     shape = note;
   ];
 
-  Aggregate [
-    label = "Aggregate";
+  AggregateToDB [
+    label = "AggregateToDB";
     style = bold;
     shape = rect;
   ];
-  Aggregate_out_1 [
+  AggregateToDB_out_1 [
     label = "S3Target(data-agg.parquet)";
     shape = note;
   ];
-  Aggregate_out_2 [
+  AggregateToDB_out_2 [
     label = "DB";
     shape = cylinder;
   ];
@@ -46,30 +46,30 @@ digraph G {
     shape = rect;
   ];
 
-  S3LogsToRaw_in -> S3LogsToRaw [ style=dotted ];
-  S3LogsToRaw -> S3LogsToRaw_out [ label = "output()" ];
+  S3LogsToCSV_in -> S3LogsToCSV [ style=dotted ];
+  S3LogsToCSV -> S3LogsToCSV_out [ label = "output()" ];
 
-  S3LogsToRaw -> ProcessRaw [ label = "requires()" ];
-  S3LogsToRaw_out -> ProcessRaw [ label = "input()" ];
-  ProcessRaw -> ProcessRaw_out [ label = "output()" ];
+  S3LogsToCSV -> EnrichCSVToParquet [ label = "requires()" ];
+  S3LogsToCSV_out -> EnrichCSVToParquet [ label = "input()" ];
+  EnrichCSVToParquet -> EnrichCSVToParquet_out [ label = "output()" ];
 
-  ProcessRaw -> Aggregate [ label = "requires() × 24" ];
-  ProcessRaw_out -> Aggregate [ label = "input()" ];
-  Aggregate -> Aggregate_out_1 [ label = "output()" ];
-  Aggregate -> Aggregate_out_2 [ style=dotted ];
+  EnrichCSVToParquet -> AggregateToDB [ label = "requires() × 24" ];
+  EnrichCSVToParquet_out -> AggregateToDB [ label = "input()" ];
+  AggregateToDB -> AggregateToDB_out_1 [ label = "output()" ];
+  AggregateToDB -> AggregateToDB_out_2 [ style=dotted ];
 
-  Aggregate -> Run [ label = "requires() × <days>"];
+  AggregateToDB -> Run [ label = "requires() × <days>"];
 
   {
     rank=min;
-    Aggregate_out_2;
+    AggregateToDB_out_2;
   }
   {
     rank=same;
-    S3LogsToRaw; ProcessRaw; Aggregate; Run;
+    S3LogsToCSV; EnrichCSVToParquet; AggregateToDB; Run;
   }
   {
     rank=same;
-    S3LogsToRaw_in; S3LogsToRaw_out; ProcessRaw_out; Aggregate_out_1;
+    S3LogsToCSV_in; S3LogsToCSV_out; EnrichCSVToParquet_out; AggregateToDB_out_1;
   }
 }

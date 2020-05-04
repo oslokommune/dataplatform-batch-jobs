@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 import luigi
 from luigi.contrib.s3 import S3Target
 
-from batch.s3_access_log_aggregator.parquet_logs_to_agg import parquet_logs_to_agg
-from batch.s3_access_log_aggregator.process_raw import csv_logs_to_parquet
-from batch.s3_access_log_aggregator.s3_logs_to_raw import s3_logs_to_raw
+from batch.s3_access_log_aggregator.aggregate_to_db import aggregate_to_db
+from batch.s3_access_log_aggregator.enrich_csv_to_parquet import csv_logs_to_parquet
+from batch.s3_access_log_aggregator.s3_logs_to_csv import s3_logs_to_csv
 from batch.util import s3_path
 
 
@@ -18,7 +18,7 @@ def past_grace_time(timestamp, min_age):
     return now - timedelta(minutes=min_age) > ts
 
 
-class S3LogsToRaw(luigi.Task):
+class S3LogsToCSV(luigi.Task):
     """Task for converting S3 access logs with with prefix `timestamp` to CSV and
     uploading the result back to S3 at `output_prefix`. The timestamp should be
     on the form YYYY-MM-DD-HH.
@@ -32,7 +32,7 @@ class S3LogsToRaw(luigi.Task):
         # Don't handle files that are younger than `min_log_age` minutes (65 by
         # default), to make sure that S3 is done populating the logs.
         if past_grace_time(self.timestamp, self.min_log_age):
-            s3_logs_to_raw(self.timestamp, self.output())
+            s3_logs_to_csv(self.timestamp, self.output())
 
     def output(self):
         path = s3_path(
@@ -47,14 +47,14 @@ class S3LogsToRaw(luigi.Task):
         return target
 
 
-class ProcessRaw(luigi.Task):
+class EnrichCSVToParquet(luigi.Task):
     """Task for enriching the raw CSV logs and converting them to Parquet."""
 
     timestamp = luigi.Parameter()
     prefix = luigi.Parameter()
 
     def requires(self):
-        return S3LogsToRaw(timestamp=self.timestamp, output_prefix=self.prefix)
+        return S3LogsToCSV(timestamp=self.timestamp, output_prefix=self.prefix)
 
     def run(self):
         csv_logs_to_parquet(self.input(), self.output())
@@ -72,7 +72,7 @@ class ProcessRaw(luigi.Task):
         return target
 
 
-class Aggregate(luigi.Task):
+class AggregateToDB(luigi.Task):
     """Task for aggregating the enriched logs."""
 
     date = luigi.Parameter()
@@ -80,10 +80,12 @@ class Aggregate(luigi.Task):
 
     def requires(self):
         for hour in range(0, 24):
-            yield ProcessRaw(timestamp=f"{self.date}-{hour:02d}", prefix=self.prefix)
+            yield EnrichCSVToParquet(
+                timestamp=f"{self.date}-{hour:02d}", prefix=self.prefix
+            )
 
     def run(self):
-        parquet_logs_to_agg(self.input(), self.output(), self.date)
+        aggregate_to_db(self.input(), self.output(), self.date)
 
     def output(self):
         path = s3_path(
@@ -112,7 +114,7 @@ class Run(luigi.Task):
         now = datetime.utcnow()
 
         for dt in [now - timedelta(days=x) for x in range(self.days)]:
-            yield Aggregate(date=dt.strftime("%Y-%m-%d"), prefix=self.prefix)
+            yield AggregateToDB(date=dt.strftime("%Y-%m-%d"), prefix=self.prefix)
 
 
 if __name__ == "__main__":
