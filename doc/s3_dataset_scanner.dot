@@ -1,0 +1,48 @@
+digraph G {
+  node [ fontname = "Cantarell" ];
+  edge [ fontname = "Cantarell"; fontsize = 11 ];
+
+  ScanS3Objects [
+    label = "ScanS3Objects";
+    style = bold;
+    shape = rect;
+  ];
+  ScanS3Objects_in [
+    label = "S3 object metadata";
+    shape = tab;
+  ];
+  ScanS3Objects_out [
+    label = "S3Target(data.parquet)";
+    shape = note;
+  ];
+
+  ExtractDatasetsFromS3Metadata [
+    label = "ExtractDatasetsFromS3Metadata";
+    style = bold;
+    shape = rect;
+  ];
+  ExtractDatasetsFromS3Metadata_out_1 [
+    label = "DB";
+    shape = cylinder;
+  ];
+
+  ScanS3Objects_in -> ScanS3Objects [ style=dotted ];
+  ScanS3Objects -> ScanS3Objects_out [ label = "output()" ];
+
+  ScanS3Objects -> ExtractDatasetsFromS3Metadata [ label = "requires()" ];
+  ScanS3Objects_out -> ExtractDatasetsFromS3Metadata [ label = "input()" ];
+  ExtractDatasetsFromS3Metadata -> ExtractDatasetsFromS3Metadata_out_1 [ style=dotted ];
+
+  {
+    rank=min;
+    ExtractDatasetsFromS3Metadata_out_1;
+  }
+  {
+    rank=same;
+    ScanS3Objects; ExtractDatasetsFromS3Metadata;
+  }
+  {
+    rank=same;
+    ScanS3Objects_in; ScanS3Objects_out;
+  }
+}
