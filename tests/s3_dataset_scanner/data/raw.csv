@@ -1,0 +1,9 @@
+key,last_modified,size
+raw/green/renovasjonsbiler-status/version=1/year=2019/month=12/day=25/dp.green.renovasjonsbiler-status.raw.1.json-1-2019-12-25-13-12-34-4ed289fe-9ef2-42d2-8125-91aed5c71026,2019-12-25 13:17:36+00:00,124614
+raw/green/renovasjonsbiler-status/version=1/year=2019/month=12/day=25/dp.green.renovasjonsbiler-status.raw.1.json-1-2019-12-25-13-18-35-827a348c-f84e-484e-b0fb-55da43055e1d,2019-12-25 13:23:36+00:00,124614
+foo/green/renovasjonsbiler-status/version=1/year=2019/month=12/day=25/dp.green.renovasjonsbiler-status.raw.1.json-1-2019-12-25-13-24-35-22aaf6d5-d595-4884-86c9-b118b5a8ab8f,2019-12-25 13:29:37+00:00,103845
+raw/foo/renovasjonsbiler-status/version=1/year=2019/month=12/day=25/dp.green.renovasjonsbiler-status.raw.1.json-1-2019-12-25-13-29-36-08b08d02-9ab4-4def-9993-c3e81101e677,2019-12-25 13:34:39+00:00,124614
+cleaned/green/befolkningsframskrivninger/version=1/edition=20200207T070503/Befolkningsframskrivning(Fram 2019).csv,2020-02-07 08:05:19+00:00,241987
+processed/green/redusert-funksjonsevne/version=1/edition=20190524T124311/Redusert_funksjonsevne(1.1.2000-1.1.2016-v01).csv,2020-02-01 20:36:55+00:00,120737
+foo/green/levekar-trangbodde-historisk/version=1/edition=20190531T090056/14.json,2019-05-31 09:01:03+00:00,2375
+processed/green/levekar-trangbodde-historisk/15.json,2019-05-31 09:01:03+00:00,2385

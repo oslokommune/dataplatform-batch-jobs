@@ -1,10 +1,8 @@
-from io import StringIO
-from unittest.mock import Mock
-
 import boto3
 from moto import mock_s3
 
 from batch.s3_access_log_aggregator.s3_logs_to_csv import _clean_field, s3_logs_to_csv
+from tests.util import mock_string_output_target
 
 
 def test_clean_field():
@@ -17,11 +15,7 @@ def test_clean_field():
 
 @mock_s3
 def test_s3_logs_to_csv():
-    result = StringIO()
-    # Don't permit actually closing the IO stream, since that will discard the
-    # buffer before we get a chance to read it.
-    result.close = Mock()
-    output_target = Mock(open=Mock(return_value=result))
+    result, output_target = mock_string_output_target()
 
     s3 = boto3.resource("s3")
     s3.create_bucket(Bucket="test-input-bucket")
