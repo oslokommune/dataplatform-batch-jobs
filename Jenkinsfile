@@ -10,8 +10,8 @@ String test = """
               make test BUILD_VENV=/tmp/virtualenv
               """
 
-PythonConfiguration.instance.setContainerRepository("python")
-PythonConfiguration.instance.setPythonVersion("3.7")
+PythonConfiguration.instance.setContainerRepository("container-registry.oslo.kommune.no/python-37-serverless")
+PythonConfiguration.instance.setPythonVersion("latest")
 
 Pipeline pipeline = new Pipeline(this)
   .addStage(new ScmCheckoutStage())
