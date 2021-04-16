@@ -18,8 +18,8 @@ from batch.s3_access_log_aggregator.tasks import (
     batch.s3_access_log_aggregator.tasks, "datetime", Mock(wraps=datetime.datetime)
 )
 def test_past_grace_time():
-    batch.s3_access_log_aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(
-        2020, 3, 1, 8
+    batch.s3_access_log_aggregator.tasks.datetime.utcnow.return_value = (
+        datetime.datetime(2020, 3, 1, 8)
     )
 
     assert not past_grace_time("2020-03-01-8", 5)
@@ -62,8 +62,8 @@ def test_s3_logs_to_csv_in_the_future():
     ).put(Body=open("tests/s3_access_log_aggregator/data/s3_access_log.txt", "rb"))
 
     # Pretend we're in the past relative to the passed timestamp.
-    batch.s3_access_log_aggregator.tasks.datetime.utcnow.return_value = datetime.datetime(
-        2020, 2, 13, 10
+    batch.s3_access_log_aggregator.tasks.datetime.utcnow.return_value = (
+        datetime.datetime(2020, 2, 13, 10)
     )
     luigi.build([S3LogsToCSV("2020-02-13-11", "test")], local_scheduler=True)
 
