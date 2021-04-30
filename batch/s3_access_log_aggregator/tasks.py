@@ -10,8 +10,7 @@ from batch.util import s3_path
 
 
 def past_grace_time(timestamp, min_age):
-    """Check whether `timestamp` is at least `min_age` minutes into the past.
-    """
+    """Check whether `timestamp` is at least `min_age` minutes into the past."""
     now = datetime.utcnow()
     ts = datetime.strptime(timestamp, "%Y-%m-%d-%H")
 
