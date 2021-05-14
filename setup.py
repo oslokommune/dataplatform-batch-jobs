@@ -11,7 +11,7 @@ setup(
     description="Collection of batch jobs for the dataplatform",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.oslo.kommune.no/origo-dataplatform/dataplatform-batch-jobs",
+    url="https://github.com/oslokommune/dataplatform-batch-jobs",
     packages=["batch"],
     install_requires=[
         "alembic",
