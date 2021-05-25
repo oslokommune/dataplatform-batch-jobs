@@ -17,7 +17,10 @@ keys = {
 @mock_s3
 def test_scan_s3_objects():
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-input-bucket")
+    s3.create_bucket(
+        Bucket="test-input-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     object_body = "foo"
 
     for key in keys:

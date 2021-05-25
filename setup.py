@@ -16,10 +16,13 @@ setup(
     install_requires=[
         "alembic",
         "boto3",
-        "fastparquet",
+        # Newer versions don't work for reasons unknown.
+        "fastparquet==0.5.0",
         "luigi",
         "psycopg2",
-        "s3fs",
+        # Newer versions of s3fs cause dependency resolution issues:
+        # https://github.com/dask/s3fs/issues/357
+        "s3fs<=0.4.2",
         "sqlalchemy",
     ],
 )

@@ -18,7 +18,10 @@ def test_s3_logs_to_csv():
     result, output_target = mock_string_output_target()
 
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-input-bucket")
+    s3.create_bucket(
+        Bucket="test-input-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",

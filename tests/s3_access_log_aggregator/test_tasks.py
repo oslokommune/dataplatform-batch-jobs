@@ -33,8 +33,14 @@ def test_past_grace_time():
 @mock_s3
 def test_s3_logs_to_csv():
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-input-bucket")
-    s3.create_bucket(Bucket="test-output-bucket")
+    s3.create_bucket(
+        Bucket="test-input-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
+    s3.create_bucket(
+        Bucket="test-output-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
@@ -54,8 +60,14 @@ def test_s3_logs_to_csv():
 )
 def test_s3_logs_to_csv_in_the_future():
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-input-bucket")
-    s3.create_bucket(Bucket="test-output-bucket")
+    s3.create_bucket(
+        Bucket="test-input-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
+    s3.create_bucket(
+        Bucket="test-output-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     s3.Object(
         "test-input-bucket",
         "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
@@ -76,7 +88,10 @@ def test_s3_logs_to_csv_in_the_future():
 @mock_s3
 def test_enrich_csv_to_parquet():
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-output-bucket")
+    s3.create_bucket(
+        Bucket="test-output-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     s3.Object(
         "test-output-bucket",
         "test/raw/red/dataplatform/dataplatform-s3-logs/version=1/year=2020/month=2/day=13/hour=11/data.csv",
@@ -93,7 +108,10 @@ def test_enrich_csv_to_parquet():
 @mock_s3
 def test_aggregate_to_db(test_db_session):
     s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="test-output-bucket")
+    s3.create_bucket(
+        Bucket="test-output-bucket",
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
     for hour in range(0, 24):
         s3.Object(
             "test-output-bucket",
