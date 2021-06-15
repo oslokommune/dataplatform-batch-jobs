@@ -77,7 +77,7 @@ thrift==0.13.0
     # via fastparquet
 tornado==6.1
     # via luigi
-urllib3==1.26.4
+urllib3==1.26.5
     # via botocore
 
 # The following packages are considered to be unsafe in a requirements file:
