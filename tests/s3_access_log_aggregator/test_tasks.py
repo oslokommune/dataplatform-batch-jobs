@@ -32,7 +32,7 @@ def test_past_grace_time():
 
 @mock_s3
 def test_s3_logs_to_csv():
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-input-bucket")
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
@@ -53,7 +53,7 @@ def test_s3_logs_to_csv():
     batch.s3_access_log_aggregator.tasks, "datetime", Mock(wraps=datetime.datetime)
 )
 def test_s3_logs_to_csv_in_the_future():
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-input-bucket")
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
@@ -75,7 +75,7 @@ def test_s3_logs_to_csv_in_the_future():
 
 @mock_s3
 def test_enrich_csv_to_parquet():
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-output-bucket")
     s3.Object(
         "test-output-bucket",
@@ -92,7 +92,7 @@ def test_enrich_csv_to_parquet():
 
 @mock_s3
 def test_aggregate_to_db(test_db_session):
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-output-bucket")
     for hour in range(0, 24):
         s3.Object(

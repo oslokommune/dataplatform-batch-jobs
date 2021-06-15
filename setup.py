@@ -11,15 +11,18 @@ setup(
     description="Collection of batch jobs for the dataplatform",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.oslo.kommune.no/origo-dataplatform/dataplatform-batch-jobs",
+    url="https://github.com/oslokommune/dataplatform-batch-jobs",
     packages=["batch"],
     install_requires=[
         "alembic",
         "boto3",
-        "fastparquet",
+        # Newer versions don't work for reasons unknown.
+        "fastparquet==0.5.0",
         "luigi",
         "psycopg2",
-        "s3fs",
+        # Newer versions of s3fs cause dependency resolution issues:
+        # https://github.com/dask/s3fs/issues/357
+        "s3fs<=0.4.2",
         "sqlalchemy",
     ],
 )

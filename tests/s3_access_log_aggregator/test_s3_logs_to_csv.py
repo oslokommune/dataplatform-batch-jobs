@@ -17,7 +17,7 @@ def test_clean_field():
 def test_s3_logs_to_csv():
     result, output_target = mock_string_output_target()
 
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-input-bucket")
     s3.Object(
         "test-input-bucket",
