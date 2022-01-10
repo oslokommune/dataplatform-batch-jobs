@@ -37,7 +37,7 @@ markupsafe==2.0.1
     # via mako
 numba==0.53.1
     # via fastparquet
-numpy==1.20.3
+numpy==1.21.0
     # via
     #   fastparquet
     #   numba
