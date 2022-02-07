@@ -1,4 +1,5 @@
-FROM python:3.7
+# python:3.7-bullseye
+FROM python@sha256:3d9ede0e8822da1531ca1363e46219ce360c9be6070c5e4b12f919499a9a2a97
 
 WORKDIR /usr/src/app
 
