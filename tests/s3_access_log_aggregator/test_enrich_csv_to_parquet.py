@@ -61,12 +61,11 @@ def test_enrich_csv():
 
 
 def test_csv_logs_to_parquet():
-    input_source = Mock(
-        open=Mock(return_value=open("tests/s3_access_log_aggregator/data/raw.csv"))
-    )
     result, output_target = mock_byte_output_target()
 
-    csv_logs_to_parquet(input_source, output_target)
+    with open("tests/s3_access_log_aggregator/data/raw.csv") as f:
+        input_source = Mock(open=Mock(return_value=f))
+        csv_logs_to_parquet(input_source, output_target)
 
     result_data = pd.read_parquet(result)
     assert len(result_data) == 4
@@ -98,14 +97,11 @@ def test_csv_logs_to_parquet():
 
 
 def test_empty_csv_logs_to_parquet():
-    input_source = Mock(
-        open=Mock(
-            return_value=open("tests/s3_access_log_aggregator/data/raw-empty.csv")
-        )
-    )
     result, output_target = mock_byte_output_target()
 
-    csv_logs_to_parquet(input_source, output_target)
+    with open("tests/s3_access_log_aggregator/data/raw-empty.csv") as f:
+        input_source = Mock(open=Mock(return_value=f))
+        csv_logs_to_parquet(input_source, output_target)
 
     result_data = pd.read_parquet(result)
 

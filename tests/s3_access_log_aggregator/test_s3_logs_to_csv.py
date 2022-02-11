@@ -19,10 +19,11 @@ def test_s3_logs_to_csv():
 
     s3 = boto3.resource("s3", region_name="us-east-1")
     s3.create_bucket(Bucket="test-input-bucket")
-    s3.Object(
-        "test-input-bucket",
-        "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
-    ).put(Body=open("tests/s3_access_log_aggregator/data/s3_access_log.txt", "rb"))
+    with open("tests/s3_access_log_aggregator/data/s3_access_log.txt", "rb") as f:
+        s3.Object(
+            "test-input-bucket",
+            "logs/s3/test-output-bucket/2020-02-13-11-43-07-27B0F6A55F241BF8",
+        ).put(Body=f)
 
     s3_logs_to_csv("2020-02-13-11", output_target)
 
