@@ -1,5 +1,5 @@
-# python:3.7-bullseye
-FROM python@sha256:7d5ba6ac052be01bc68beefcd62de0b7fb8084f9b1e56035c5edce0b4cde946e
+# python:3.9-bullseye
+FROM python@sha256:efb5ab0fef765227c65ddc52e524b8e2766f65c6c119b908744ff5c840dfd2d3
 
 WORKDIR /usr/src/app
 
