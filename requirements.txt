@@ -31,7 +31,7 @@ lockfile==0.12.2
     # via python-daemon
 luigi==3.0.3
     # via dataplatform-batch-jobs (setup.py)
-mako==1.1.4
+mako==1.2.2
     # via alembic
 markupsafe==2.0.1
     # via mako
